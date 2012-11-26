@@ -1,0 +1,49 @@
+NAME
+    Sys::Run - Run commands and handle their output.
+
+SYNOPSIS
+        use Sys::Run;
+        my $Sys = Sys::Run::->new({
+            'logger' => Log::Tree::->new(),
+        });
+        my $ok = $Sys->run('sleep 60');
+
+METHODS
+  check_binary
+    Test if the given binary is within the search path and executeable.
+
+  check_remote_binary
+    Test if the given binary is executeable on the given remote host.
+
+  check_ssh_login
+    Test if a password-less SSH login at the given host is possible.
+
+  clear_caches
+    Drop all FS caches.
+
+  run
+    Run the given command on the given host.
+
+  run_cmd
+    Run the given command on the local host.
+
+  run_remote_cmd
+    Run the given command on the remote host.
+
+    1; # End of Sys::Run
+
+NAME
+    Sys::Run - Run commands and handle their output.
+
+DESCIRPTION
+    Run commands and handle output.
+
+AUTHOR
+    Dominik Schulz <tex@cpan.org>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2012 by Dominik Schulz.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
