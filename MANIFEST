@@ -4,7 +4,6 @@ MANIFEST
 META.json
 META.yml
 Makefile.PL
-README
 README.md
 dist.ini
 lib/Sys/Run.pm
@@ -15,5 +14,6 @@ t/pod.t
 t/release-eol.t
 t/release-no-tabs.t
 t/release-pod-syntax.t
+t/run_cmd.t
 test.pl
 weaver.ini

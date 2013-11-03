@@ -4,7 +4,7 @@
       "Dominik Schulz <tex@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 5.005, CPAN::Meta::Converter version 2.132661",
    "license" : [
       "perl_5"
    ],
@@ -21,6 +21,8 @@
       },
       "develop" : {
          "requires" : {
+            "Test::More" : "0",
+            "Test::NoTabs" : "0",
             "Test::Pod" : "1.41"
          }
       },
@@ -40,6 +42,7 @@
       },
       "test" : {
          "requires" : {
+            "Test::MockObject::Universal" : "0",
             "Test::More" : "0",
             "strict" : "0",
             "warnings" : "0"
@@ -57,7 +60,7 @@
          "web" : "https://github.com/gittex/Sys-Run"
       }
    },
-   "version" : "0.11",
+   "version" : "0.12",
    "x_authority" : "cpan:TEX"
 }
 

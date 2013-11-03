@@ -1,6 +1,6 @@
 package Sys::Run;
 {
-  $Sys::Run::VERSION = '0.11';
+  $Sys::Run::VERSION = '0.12';
 }
 BEGIN {
   $Sys::Run::AUTHORITY = 'cpan:TEX';
@@ -77,11 +77,22 @@ sub run_cmd {
         $cmd .= ' >>' . $opts->{Logfile} . ' 2>&1';
     }
     elsif ( $opts->{CaptureOutput} ) {
-
+      if ( $opts->{Outfile} ) {
+        if ( $opts->{Append} ) {
+          $cmd .= ' >>'.$opts->{Outfile};
+        } else {
+          $cmd .= ' >' .$opts->{Outfile};
+        }
+      } else {
         # mktemp, redirect to tempfile
         $tempdir = File::Temp::->newdir( CLEANUP => 1, );
         $outfile = $tempdir . '/cmd.out';
-        $cmd .= ' >'.$outfile.' 2>&1';
+        $cmd .= ' >'.$outfile;
+      }
+      # only redirect STDERR if not already redirected
+      if($cmd !~ m/\s2>/) {
+        $cmd .= ' 2>&1';
+      }
     }
     else {
         if ( !$opts->{Verbose} && $cmd !~ m/>/ ) {
@@ -116,7 +127,7 @@ sub run_cmd {
     }
     if ( defined($rv) && $rv == 0 ) {
         $self->logger()->log( message => 'Command completed successfully', level => 'debug', );
-        if ( $opts->{CaptureOutput} ) {
+        if ( $opts->{CaptureOutput} && !$opts->{Outfile} ) {
             return File::Blarf::slurp( $outfile, $opts );
         }
         else {
@@ -255,14 +266,6 @@ sub run_remote_cmd {
     }
 }
 
-############################################
-# Usage      : check_binary('ls');
-# Purpose    : Check if a given binary is in the PATH.
-# Returns    : ????
-# Parameters : ????
-# Throws     : no exceptions
-# Comments   : none
-# See Also   : n/a
 sub check_binary {
     my $self   = shift;
     my $binary = shift;
@@ -331,35 +334,50 @@ Sys::Run - Run commands and handle their output.
 
 =head1 METHODS
 
-=head2 check_binary
-
-Test if the given binary is within the search path and executeable.
-
-=head2 check_remote_binary
-
-Test if the given binary is executeable on the given remote host.
-
 =head2 check_ssh_login
 
-Test if a password-less SSH login at the given host is possible.
+Make sure an password-less SSH access to the target is working.
 
 =head2 clear_caches
 
-Drop all FS caches.
-
-=head2 run
-
-Run the given command on the given host.
+Clear all OS-level (linux) caches.
 
 =head2 run_cmd
 
-Run the given command on the local host.
+Run the given command.
+
+Available options:
+- Logfile
+- CaptureOutput
+-- Outfile
+--- Append
+- Verbose
+- Timeout
+- ReturnRV
+
+=head2 run
+
+Run the given command on the given hostname (maybe localhost).
 
 =head2 run_remote_cmd
 
 Run the given command on the remote host.
 
-1; # End of Sys::Run
+Available Options:
+- NoHup
+- UseSSHAgent
+- NoSSHStrictHostKeyChecking
+- SSHOpts
+- ReturnRV
+- Retry
+
+=head2 check_binary
+
+Make sure the given (unqalified) binary exists somewhere in the search path.
+
+=head2 check_remote_binary
+
+Make sure the given command is an executeable binary on the remote host.
 
 =head1 NAME
 
