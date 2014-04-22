@@ -1,6 +1,6 @@
 package Sys::Run;
 {
-  $Sys::Run::VERSION = '0.12';
+  $Sys::Run::VERSION = '0.15';
 }
 BEGIN {
   $Sys::Run::AUTHORITY = 'cpan:TEX';
@@ -114,7 +114,11 @@ sub run_cmd {
     eval {
         local $SIG{ALRM} = sub { die "alarm-sys-run-cmd\n"; };
         $prev_timeout = alarm $timeout if $timeout > 0;
-        $rv = system($cmd) >> 8;
+        if( $opts->{DryRun} ) {
+          $rv = 0;
+        } else {
+          $rv = system($cmd) >> 8;
+        }
     };
     alarm $prev_timeout if $timeout > 0;
     if ( $@ && $@ eq "alarm-sys-run-cmd\n" ) {
@@ -123,7 +127,11 @@ sub run_cmd {
     }
     if ( $opts->{Logfile} ) {
         local $opts->{Append} = 1;
-        File::Blarf::blarf( $opts->{Logfile}, time().' - CMD finished. Exit Code: '.$rv."\n", $opts );
+        my $output = time().' - CMD finished. Exit Code: '.$rv."\n";
+        if( $opts->{DryRun} ) {
+          $output = 'CMD finished in DryRun mode. Faking exit code: 0.'."\n";
+        }
+        File::Blarf::blarf( $opts->{Logfile}, $output, $opts );
     }
     if ( defined($rv) && $rv == 0 ) {
         $self->logger()->log( message => 'Command completed successfully', level => 'debug', );
@@ -165,6 +173,28 @@ sub run {
     }
 }
 
+sub _ssh_opts {
+    my $self = shift;
+    my $opts = shift || {};
+
+    my $ssh_opts = '-oBatchMode=yes ';
+    if ( $opts->{NoSSHStrictHostKeyChecking} || !$self->ssh_hostkey_check() ) {
+        $ssh_opts .= '-oStrictHostKeyChecking=no ';
+        $ssh_opts .= '-oUserKnownHostsFile=/dev/null ';
+    }
+    if ( $opts->{SSHVerbose} ) {
+        $ssh_opts .= q{-v };
+    } else {
+        # if we're not supposed to be verbose, we're quiet
+        $ssh_opts .= q{-q };
+    }
+    # add any extra ssh options, like ports et.al.
+    if ( $opts->{SSHOpts} ) {
+        $ssh_opts .= $opts->{SSHOpts}.q{ };
+    }
+    return $ssh_opts;
+}
+
 sub run_remote_cmd {
     my $self = shift;
     my $host = shift;
@@ -188,6 +218,8 @@ sub run_remote_cmd {
         $cmd .= ' &';
     }
 
+    my $rcmd = 'ssh '.$self->_ssh_opts( $opts ).q{ }.$host.q{ '}.$cmd.q{'};
+
     # Do not use a forwarded SSH agent unless
     # explicitly asked for. Otherwise a long running operation, e.g. a sync,
     # may be started in a screen w/ the ssh auth of the user. When this users
@@ -203,23 +235,6 @@ sub run_remote_cmd {
         $ENV{SSH_AUTH_SOCK} = q{};
         ## use critic
     }
-    my $rcmd = 'ssh -oBatchMode=yes ';
-    if ( $opts->{NoSSHStrictHostKeyChecking} || !$self->ssh_hostkey_check() ) {
-        $rcmd .= '-oStrictHostKeyChecking=no ';
-        $rcmd .= '-oUserKnownHostsFile=/dev/null ';
-    }
-    if ( $opts->{SSHVerbose} ) {
-        $rcmd .= q{-v };
-    } else {
-        # if we're not supposed to be verbose, we're quiet
-        $rcmd .= q{-q };
-    }
-    # add any extra ssh options, like ports et.al.
-    if ( $opts->{SSHOpts} ) {
-        $rcmd .= $opts->{SSHOpts}.q{ };
-    }
-    $rcmd .= $host.q{ '}.$cmd.q{'};
-
     $self->logger()->log( message => 'CMD: '.$rcmd, level => 'debug', );
     my $rv = $self->run_cmd( $rcmd, $opts );
 
@@ -318,7 +333,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
