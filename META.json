@@ -34,6 +34,7 @@
             "Log::Tree::RequiredLogger" : "0",
             "Moose" : "0",
             "Net::Domain" : "0",
+            "Time::HiRes" : "0",
             "feature" : "0",
             "mro" : "0",
             "namespace::autoclean" : "0",
@@ -51,13 +52,16 @@
    },
    "release_status" : "stable",
    "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/gittex/Sys-Run/issues"
+      },
       "repository" : {
          "type" : "git",
          "url" : "git://github.com/gittex/Sys-Run.git",
          "web" : "https://github.com/gittex/Sys-Run"
       }
    },
-   "version" : "0.15",
+   "version" : "0.16",
    "x_authority" : "cpan:TEX"
 }
 

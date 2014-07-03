@@ -26,6 +26,7 @@ my %WriteMakefileArgs = (
     "Log::Tree::RequiredLogger" => 0,
     "Moose" => 0,
     "Net::Domain" => 0,
+    "Time::HiRes" => 0,
     "feature" => 0,
     "mro" => 0,
     "namespace::autoclean" => 0
@@ -36,7 +37,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.15",
+  "VERSION" => "0.16",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -52,6 +53,7 @@ my %FallbackPrereqs = (
   "Net::Domain" => 0,
   "Test::MockObject::Universal" => 0,
   "Test::More" => 0,
+  "Time::HiRes" => 0,
   "feature" => 0,
   "mro" => 0,
   "namespace::autoclean" => 0,
